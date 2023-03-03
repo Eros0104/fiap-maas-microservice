@@ -1,14 +1,16 @@
-import Interface from "../interfaces/userInterface";
+import { UserInterface } from "../interfaces";
 
-class User implements Interface {
+class User implements UserInterface {
   id;
   name;
   email;
+  password;
 
-  constructor(id: string, name: string, email: string) {
+  constructor(id: string, name: string, email: string, password: string) {
     this.id = id;
     this.name = name;
     this.email = email;
+    this.password = password;
   }
 }
 

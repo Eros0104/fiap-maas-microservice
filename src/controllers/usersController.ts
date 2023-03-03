@@ -1,37 +1,49 @@
 import { v4 as uuid } from "uuid";
-import User from "../models/user";
+import { User } from "../models";
 import { Request, Response } from "express";
+import Database from "../database";
 
 class UsersController {
-  users: User[];
+  db: Database;
 
   constructor() {
-    this.users = [];
+    this.db = Database.getInstance();
   }
 
-  getUsers(req: Request, res: Response) {
-    res.status(200).json(this.users);
+  getAll(req: Request, res: Response) {
+    const users = this.db.getAllUsers();
+    res.json(users);
   }
 
-  createUser(req: Request, res: Response) {
-    const { name, email } = req.body;
-    const user = new User(uuid(), name, email);
-    this.users.push(user);
-    res.status(201).json(user);
-  }
-
-  updateUser(req: Request, res: Response) {
-    const id = req.params.id;
-    const { name, email } = req.body;
-    const index = this.users.findIndex((user) => user.id === id);
-
-    if (index >= 0) {
-      const updatedUser = new User(id, name, email);
-      this.users[index] = updatedUser;
-      res.status(200).json(updatedUser);
+  getById(req: Request, res: Response) {
+    const { id } = req.params;
+    const user = this.db.getUserById(id);
+    if (user) {
+      res.json(user);
     } else {
       res.status(404).end();
     }
+  }
+
+  create(req: Request, res: Response) {
+    const { name, email, password } = req.body;
+    const user = new User(uuid(), name, email, password);
+    this.db.addUser(user);
+    res.status(201).json(user);
+  }
+
+  update(req: Request, res: Response) {
+    const { id } = req.params;
+    const { name, email, password } = req.body;
+    const userToUpdate = new User(id, name, email, password);
+    this.db.updateUser(id, userToUpdate);
+    res.status(204).end();
+  }
+
+  delete(req: Request, res: Response) {
+    const { id } = req.params;
+    this.db.deleteUser(id);
+    res.status(204).end();
   }
 }
 
